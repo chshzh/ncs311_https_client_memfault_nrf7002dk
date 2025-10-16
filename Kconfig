@@ -19,6 +19,10 @@ config HTTPS_HOSTNAME
 
 endmenu
 
+module = MEMFAULT_SAMPLE
+module-str = Memfault sample
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
 menu "Zephyr Kernel"
 source "Kconfig.zephyr"
 endmenu

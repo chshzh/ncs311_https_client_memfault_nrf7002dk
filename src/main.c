@@ -12,6 +12,8 @@
 #include <zephyr/net/conn_mgr_connectivity.h>
 #include <zephyr/net/tls_credentials.h>
 
+#include "mflt_services.h"
+
 #if defined(CONFIG_POSIX_API)
 #include <zephyr/posix/arpa/inet.h>
 #include <zephyr/posix/netdb.h>
@@ -163,11 +165,13 @@ int tls_setup(int fd)
 static void on_net_event_l4_disconnected(void)
 {
 	printk("Disconnected from the network\n");
+	mflt_services_handle_network_disconnected();
 }
 
 static void on_net_event_l4_connected(void)
 {
 	k_sem_give(&network_connected_sem);
+	mflt_services_handle_network_connected();
 }
 
 static void l4_event_handler(struct net_mgmt_event_callback *cb, uint32_t event,
@@ -297,6 +301,11 @@ int main(void)
 	int err;
 
 	printk("HTTPS client sample started\n\r");
+
+	err = mflt_services_init();
+	if (err) {
+		printk("Memfault services initialization failed: %d\n", err);
+	}
 
 	/* Setup handler for Zephyr NET Connection Manager events. */
 	net_mgmt_init_event_callback(&l4_cb, l4_event_handler, L4_EVENT_MASK);
